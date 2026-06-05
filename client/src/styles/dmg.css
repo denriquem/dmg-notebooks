@@ -1,0 +1,200 @@
+:root {
+  --skyTop: #2a1c18;
+  --skyBot: #7a4632;
+  --bone: #f2e7d2;
+  --paper: #f6eedc;
+  --terracotta: #d2724a;
+  --ochre: #e0a23e;
+  --teal: #5e8a72;
+  --oxblood: #8e2f22;
+  --ink: #211309;
+  --horizon: #f0b45a;
+}
+
+/* faint wall grid — full-bleed background behind content */
+.dmg-wall-grid {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.45;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent 0 47px,
+      color-mix(in oklab, var(--ink) 6%, transparent) 47px 48px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 47px,
+      color-mix(in oklab, var(--ink) 6%, transparent) 47px 48px
+    );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}
+
+/* ---- Markdown preview ---- */
+.md-preview {
+  font: 400 15px/1.6 "Space Grotesk", sans-serif;
+  color: var(--ink);
+}
+.md-preview > *:first-child {
+  margin-top: 0;
+}
+.md-preview > *:last-child {
+  margin-bottom: 0;
+}
+.md-preview h1 {
+  font: 800 24px/1.05 "Syne", sans-serif;
+  letter-spacing: -0.02em;
+  margin: 12px 0 8px;
+}
+.md-preview h2 {
+  font: 800 24px/1.05 "Syne", sans-serif;
+  letter-spacing: -0.02em;
+  margin: 12px 0 8px;
+}
+.md-preview h3 {
+  font: 700 18px/1.1 "Syne", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  margin: 10px 0 6px;
+}
+.md-preview p {
+  margin: 0 0 10px;
+}
+.md-preview ul,
+.md-preview ol {
+  padding-left: 22px;
+  margin: 0 0 10px;
+}
+.md-preview ul {
+  list-style: none;
+  padding-left: 4px;
+}
+.md-preview ul > li {
+  position: relative;
+  padding-left: 18px;
+  margin-bottom: 6px;
+}
+.md-preview ul > li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.62em;
+  width: 7px;
+  height: 7px;
+  background: var(--terracotta);
+}
+.md-preview ol > li {
+  margin-bottom: 6px;
+}
+.md-preview code {
+  font: 400 0.88em/1.4 "Space Mono", monospace;
+  background: color-mix(in oklab, var(--ink) 8%, transparent);
+  border: 1px solid color-mix(in oklab, var(--ink) 18%, transparent);
+  padding: 1px 5px;
+}
+.md-preview pre {
+  background: var(--ink);
+  color: var(--bone);
+  padding: 12px 14px;
+  overflow-x: auto;
+  margin: 0 0 10px;
+  border: 3px solid var(--ink);
+}
+.md-preview pre code {
+  background: transparent;
+  border: none;
+  color: var(--bone);
+  padding: 0;
+}
+.md-preview blockquote {
+  border-left: 3px solid var(--terracotta);
+  padding-left: 12px;
+  margin: 0 0 10px;
+  color: color-mix(in oklab, var(--ink) 70%, transparent);
+}
+.md-preview a {
+  color: var(--oxblood);
+  text-decoration: underline;
+}
+.md-preview strong {
+  font-weight: 700;
+}
+.md-preview em {
+  font-style: italic;
+}
+.md-preview hr {
+  border: none;
+  border-top: 3px solid var(--ink);
+  margin: 14px 0;
+}
+.md-preview table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 0 0 10px;
+}
+.md-preview th,
+.md-preview td {
+  border: 2px solid var(--ink);
+  padding: 4px 8px;
+}
+.md-preview th {
+  font: 700 11px/1 "Space Mono", monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: color-mix(in oklab, var(--ink) 6%, transparent);
+}
+.md-preview del {
+  text-decoration: line-through;
+}
+
+/* ---- Prism syntax highlight, themed for the ink code card ---- */
+.dmg-code,
+.dmg-code textarea,
+.dmg-code pre {
+  color: var(--bone) !important;
+}
+.dmg-code .token.comment,
+.dmg-code .token.prolog,
+.dmg-code .token.doctype,
+.dmg-code .token.cdata {
+  color: color-mix(in oklab, var(--bone) 42%, transparent);
+  font-style: italic;
+}
+.dmg-code .token.keyword,
+.dmg-code .token.boolean,
+.dmg-code .token.builtin,
+.dmg-code .token.atrule,
+.dmg-code .token.important {
+  color: var(--horizon);
+  font-weight: 700;
+}
+.dmg-code .token.function,
+.dmg-code .token.class-name {
+  color: var(--horizon);
+}
+.dmg-code .token.string,
+.dmg-code .token.char,
+.dmg-code .token.attr-value,
+.dmg-code .token.regex {
+  color: var(--ochre);
+}
+.dmg-code .token.number {
+  color: var(--teal);
+}
+.dmg-code .token.operator,
+.dmg-code .token.punctuation,
+.dmg-code .token.property {
+  color: color-mix(in oklab, var(--bone) 70%, transparent);
+}
+.dmg-code .token.tag,
+.dmg-code .token.selector,
+.dmg-code .token.attr-name {
+  color: var(--terracotta);
+}

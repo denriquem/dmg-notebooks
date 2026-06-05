@@ -1,0 +1,316 @@
+{
+  "info": {
+    "name": "DMNotebook API",
+    "description": "Postman collection for the DMNotebook Express backend running in Docker on http://localhost:3001. Auth uses HttpOnly JWT cookies — Postman's cookie jar handles them automatically per domain. Run requests in order: Register (or Login) → Pages → Blocks → AI.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3001" },
+    { "key": "email", "value": "test@example.com" },
+    { "key": "password", "value": "password123" },
+    { "key": "name", "value": "Test User" },
+    { "key": "pageId", "value": "" },
+    { "key": "blockId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "{{baseUrl}}/health", "host": ["{{baseUrl}}"], "path": ["health"] }
+      }
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\",\n  \"name\": \"{{name}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Me",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "me"]
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "logout"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Pages",
+      "item": [
+        {
+          "name": "List Pages",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/pages",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pages"]
+            }
+          }
+        },
+        {
+          "name": "Create Page",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.page && json.page.id) {",
+                  "  pm.collectionVariables.set('pageId', json.page.id);",
+                  "  console.log('pageId set to', json.page.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"My First Page\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/pages",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pages"]
+            }
+          }
+        },
+        {
+          "name": "Get Page",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/pages/{{pageId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pages", "{{pageId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Page",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Renamed Page\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/pages/{{pageId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pages", "{{pageId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Page",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/pages/{{pageId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pages", "{{pageId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Blocks",
+      "item": [
+        {
+          "name": "Create Text Block",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.block && json.block.id) {",
+                  "  pm.collectionVariables.set('blockId', json.block.id);",
+                  "  console.log('blockId set to', json.block.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"text\",\n  \"content\": \"Hello world\",\n  \"orderIndex\": 0\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/pages/{{pageId}}/blocks",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pages", "{{pageId}}", "blocks"]
+            }
+          }
+        },
+        {
+          "name": "Create Todo Block",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"todo\",\n  \"content\": \"Buy milk\",\n  \"orderIndex\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/pages/{{pageId}}/blocks",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pages", "{{pageId}}", "blocks"]
+            }
+          }
+        },
+        {
+          "name": "Create Code Block",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.block && json.block.id) {",
+                  "  pm.collectionVariables.set('blockId', json.block.id);",
+                  "  console.log('blockId (code) set to', json.block.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"code\",\n  \"content\": \"const add = (a, b) => a + b;\",\n  \"language\": \"typescript\",\n  \"orderIndex\": 2\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/pages/{{pageId}}/blocks",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pages", "{{pageId}}", "blocks"]
+            }
+          }
+        },
+        {
+          "name": "Update Block",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Updated content\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/blocks/{{blockId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "blocks", "{{blockId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Block",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/blocks/{{blockId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "blocks", "{{blockId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "AI",
+      "item": [
+        {
+          "name": "Explain Code Block (SSE)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"blockId\": \"{{blockId}}\",\n  \"action\": \"explain\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/ai",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ai"]
+            },
+            "description": "Returns text/event-stream. Postman will show raw SSE chunks in the response body."
+          }
+        },
+        {
+          "name": "Refactor Code Block (SSE)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"blockId\": \"{{blockId}}\",\n  \"action\": \"refactor\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/ai",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ai"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

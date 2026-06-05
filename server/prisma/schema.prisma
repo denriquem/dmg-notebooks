@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  createdAt DateTime @default(now())
+  pages     Page[]
+  folders   Folder[]
+}
+
+model Folder {
+  id        String   @id @default(cuid())
+  name      String
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pages     Page[]
+}
+
+model Page {
+  id        String   @id @default(cuid())
+  title     String
+  userId    String
+  folderId  String?
+  parentId  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  folder    Folder?  @relation(fields: [folderId], references: [id], onDelete: SetNull)
+  parent    Page?    @relation("SubPages", fields: [parentId], references: [id], onDelete: Cascade)
+  children  Page[]   @relation("SubPages")
+  blocks    Block[]
+}
+
+model Block {
+  id             String          @id @default(cuid())
+  pageId         String
+  type           BlockType
+  content        String          @default("")
+  language       String?
+  orderIndex     Int
+  checked        Boolean         @default(false)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  page           Page            @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  aiInteractions AiInteraction[]
+}
+
+model AiInteraction {
+  id        String   @id @default(cuid())
+  blockId   String
+  action    AiAction
+  result    String
+  createdAt DateTime @default(now())
+  block     Block    @relation(fields: [blockId], references: [id], onDelete: Cascade)
+}
+
+enum BlockType {
+  text
+  todo
+  code
+}
+
+enum AiAction {
+  explain
+  refactor
+  test
+}
