@@ -2,12 +2,23 @@ export type BlockType = "text" | "todo" | "code";
 
 export type User = { id: string; email: string; name: string };
 
+export type TextFont = "sans" | "display" | "mono";
+export type TextColor = "ink" | "terracotta" | "ochre" | "teal" | "oxblood";
+export type TextSize = "sm" | "md" | "lg";
+
+export type TextStyle = {
+  font?: TextFont;
+  color?: TextColor;
+  size?: TextSize;
+};
+
 export type Block = {
   id: string;
   pageId: string;
   type: BlockType;
   content: string;
   language: string | null;
+  style: TextStyle | null;
   orderIndex: number;
   checked: boolean;
   createdAt: string;

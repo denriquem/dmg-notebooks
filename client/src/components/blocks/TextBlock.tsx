@@ -1,33 +1,53 @@
 import { Box, Flex, Textarea } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
-import ReactMarkdown from "react-markdown";
-import rehypeRaw from "rehype-raw";
-import remarkGfm from "remark-gfm";
-import type { Block } from "../../api/types";
+import type { Block, TextColor, TextFont, TextSize, TextStyle } from "../../api/types";
 import { useDebouncedCallback } from "../../hooks/useDebouncedCallback";
 import { useDeleteBlock, useUpdateBlock } from "../../hooks/useBlockMutations";
 import BlockChrome from "./BlockChrome";
 
-const MD_COLORS: { label: string; token: string | null }[] = [
-  { label: "Default", token: null },
-  { label: "Terracotta", token: "terracotta" },
-  { label: "Ochre", token: "ochre" },
-  { label: "Teal", token: "teal" },
-  { label: "Oxblood", token: "oxblood" },
+const FONTS: Record<TextFont, { label: string; family: string }> = {
+  sans: { label: "Sans", family: "'Space Grotesk', sans-serif" },
+  display: { label: "Display", family: "'Syne', sans-serif" },
+  mono: { label: "Mono", family: "'Space Mono', monospace" },
+};
+
+const SIZES: Record<TextSize, { label: string; px: string }> = {
+  sm: { label: "S", px: "14px" },
+  md: { label: "M", px: "18px" },
+  lg: { label: "L", px: "26px" },
+};
+
+const COLORS: { key: TextColor; label: string }[] = [
+  { key: "ink", label: "Default" },
+  { key: "terracotta", label: "Terracotta" },
+  { key: "ochre", label: "Ochre" },
+  { key: "teal", label: "Teal" },
+  { key: "oxblood", label: "Oxblood" },
 ];
+
+const DEFAULT_STYLE: Required<TextStyle> = { font: "sans", color: "ink", size: "md" };
+
+const resolveStyle = (style: TextStyle | null): Required<TextStyle> => ({
+  ...DEFAULT_STYLE,
+  ...(style ?? {}),
+});
 
 type Props = { pageId: string; block: Block };
 
 const TextBlock = ({ pageId, block }: Props): JSX.Element => {
   const [value, setValue] = useState(block.content);
+  const [style, setStyle] = useState<Required<TextStyle>>(resolveStyle(block.style));
   const [isEditing, setIsEditing] = useState(block.content === "");
   const containerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const styleRef = useRef(style);
+  styleRef.current = style;
   const updateM = useUpdateBlock(pageId);
   const deleteM = useDeleteBlock(pageId);
 
   useEffect(() => {
     setValue(block.content);
+    setStyle(resolveStyle(block.style));
   }, [block.id]);
 
   useEffect(() => {
@@ -44,19 +64,11 @@ const TextBlock = ({ pageId, block }: Props): JSX.Element => {
     save(next);
   };
 
-  const applyColor = (token: string | null) => {
-    const el = textareaRef.current;
-    if (!el) return;
-    const { selectionStart: start, selectionEnd: end } = el;
-    const selected = value.slice(start, end) || "text";
-    const wrapped = token ? `<span style="color:var(--${token})">${selected}</span>` : selected;
-    const next = value.slice(0, start) + wrapped + value.slice(end);
-    handleChange(next);
-    setTimeout(() => {
-      el.focus();
-      const cursor = start + wrapped.length;
-      el.setSelectionRange(cursor, cursor);
-    }, 0);
+  const applyStyle = (patch: Partial<TextStyle>) => {
+    const next = { ...styleRef.current, ...patch };
+    styleRef.current = next;
+    setStyle(next);
+    updateM.mutate({ id: block.id, input: { style: next } });
   };
 
   const handleBlur = (e: React.FocusEvent<HTMLDivElement>) => {
@@ -65,27 +77,89 @@ const TextBlock = ({ pageId, block }: Props): JSX.Element => {
     }
   };
 
+  const textStyles = {
+    fontFamily: FONTS[style.font].family,
+    fontSize: SIZES[style.size].px,
+    color: `var(--${style.color})`,
+    lineHeight: 1.6,
+    whiteSpace: "pre-wrap" as const,
+    wordBreak: "break-word" as const,
+  };
+
   return (
     <BlockChrome type="text" onDelete={() => deleteM.mutate(block.id)}>
       <Box width="100%" ref={containerRef} onBlur={handleBlur}>
         {isEditing ? (
           <>
             <Flex align="center" gap="6px" mb="10px" flexWrap="wrap">
-              {MD_COLORS.map((c) => (
-                <Box
-                  key={c.label}
-                  as="button"
-                  title={c.label}
-                  width="18px"
-                  height="18px"
-                  borderRadius="50%"
-                  border="2px solid var(--ink)"
-                  cursor="pointer"
-                  bg={c.token ? `var(--${c.token})` : "color-mix(in oklab, var(--ink) 30%, transparent)"}
-                  onMouseDown={(e: React.MouseEvent) => e.preventDefault()}
-                  onClick={() => applyColor(c.token)}
-                />
-              ))}
+              {/* Font */}
+              <Flex border="2px solid var(--ink)">
+                {(Object.keys(FONTS) as TextFont[]).map((key) => (
+                  <Box
+                    key={key}
+                    as="button"
+                    title={FONTS[key].label}
+                    fontFamily={FONTS[key].family}
+                    fontWeight={700}
+                    fontSize="12px"
+                    lineHeight={1}
+                    px="9px"
+                    py="6px"
+                    cursor="pointer"
+                    bg={style.font === key ? "var(--ink)" : "transparent"}
+                    color={style.font === key ? "var(--paper)" : "var(--ink)"}
+                    onMouseDown={(e: React.MouseEvent) => e.preventDefault()}
+                    onClick={() => applyStyle({ font: key })}
+                  >
+                    {FONTS[key].label}
+                  </Box>
+                ))}
+              </Flex>
+
+              {/* Size */}
+              <Flex border="2px solid var(--ink)">
+                {(Object.keys(SIZES) as TextSize[]).map((key) => (
+                  <Box
+                    key={key}
+                    as="button"
+                    title={`Size ${SIZES[key].label}`}
+                    fontFamily="'Space Mono', monospace"
+                    fontWeight={700}
+                    fontSize="11px"
+                    lineHeight={1}
+                    width="24px"
+                    py="6px"
+                    cursor="pointer"
+                    bg={style.size === key ? "var(--ink)" : "transparent"}
+                    color={style.size === key ? "var(--paper)" : "var(--ink)"}
+                    onMouseDown={(e: React.MouseEvent) => e.preventDefault()}
+                    onClick={() => applyStyle({ size: key })}
+                  >
+                    {SIZES[key].label}
+                  </Box>
+                ))}
+              </Flex>
+
+              {/* Colour */}
+              <Flex align="center" gap="6px">
+                {COLORS.map((c) => (
+                  <Box
+                    key={c.key}
+                    as="button"
+                    title={c.label}
+                    width="18px"
+                    height="18px"
+                    borderRadius="50%"
+                    border="2px solid var(--ink)"
+                    cursor="pointer"
+                    boxShadow={style.color === c.key ? "0 0 0 2px var(--paper), 0 0 0 4px var(--ink)" : "none"}
+                    bg={c.key === "ink" ? "color-mix(in oklab, var(--ink) 30%, transparent)" : `var(--${c.key})`}
+                    onMouseDown={(e: React.MouseEvent) => e.preventDefault()}
+                    onClick={() => applyStyle({ color: c.key })}
+                  />
+                ))}
+              </Flex>
+
               <Box
                 as="button"
                 ml="auto"
@@ -109,32 +183,22 @@ const TextBlock = ({ pageId, block }: Props): JSX.Element => {
               ref={textareaRef}
               value={value}
               onChange={(e) => handleChange(e.target.value)}
-              placeholder="Write something… (markdown supported)"
+              placeholder="Write something…"
               variant="unstyled"
               rows={Math.max(2, value.split("\n").length)}
               resize="none"
-              fontFamily="'Space Mono', monospace"
-              fontSize="14px"
-              lineHeight={1.6}
-              color="var(--ink)"
+              sx={textStyles}
               _placeholder={{ color: "color-mix(in oklab, var(--ink) 40%, transparent)" }}
             />
           </>
         ) : (
           <Box
-            className="md-preview"
             minH="24px"
             cursor="text"
             onClick={() => setIsEditing(true)}
-            sx={value ? undefined : { opacity: 0.45, fontStyle: "italic" }}
+            sx={value ? textStyles : { opacity: 0.45, fontStyle: "italic" }}
           >
-            {value ? (
-              <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
-                {value}
-              </ReactMarkdown>
-            ) : (
-              "Click to write…"
-            )}
+            {value || "Click to write…"}
           </Box>
         )}
       </Box>

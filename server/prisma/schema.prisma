@@ -49,6 +49,7 @@ model Block {
   type           BlockType
   content        String          @default("")
   language       String?
+  style          Json?
   orderIndex     Int
   checked        Boolean         @default(false)
   createdAt      DateTime        @default(now())

@@ -5,7 +5,7 @@ import type { BlockType } from "../../api/types";
 type Props = { onAdd: (type: BlockType) => void };
 
 const ITEMS: { type: BlockType; label: string; desc: string; token: string }[] = [
-  { type: "text", label: "Text", desc: "Markdown prose", token: "teal" },
+  { type: "text", label: "Text", desc: "Styled prose", token: "teal" },
   { type: "todo", label: "To-do", desc: "A checkable task", token: "ochre" },
   { type: "code", label: "Code", desc: "Snippet + AI actions", token: "terracotta" },
 ];

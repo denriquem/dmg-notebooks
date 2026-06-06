@@ -1,16 +1,18 @@
 import api from "./client";
-import type { Block, BlockType } from "./types";
+import type { Block, BlockType, TextStyle } from "./types";
 
 export type CreateBlockInput = {
   type: BlockType;
   content?: string;
   language?: string;
+  style?: TextStyle;
   orderIndex: number;
 };
 
 export type UpdateBlockInput = Partial<{
   content: string;
   language: string;
+  style: TextStyle;
   orderIndex: number;
   checked: boolean;
 }>;

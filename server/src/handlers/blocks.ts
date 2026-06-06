@@ -4,10 +4,17 @@ import prisma from "../lib/prisma";
 
 const BlockTypeEnum = z.enum(["text", "todo", "code"]);
 
+const TextStyleSchema = z.object({
+  font: z.enum(["sans", "display", "mono"]).optional(),
+  color: z.enum(["ink", "terracotta", "ochre", "teal", "oxblood"]).optional(),
+  size: z.enum(["sm", "md", "lg"]).optional(),
+});
+
 const CreateBlockSchema = z.object({
   type: BlockTypeEnum,
   content: z.string().default(""),
   language: z.string().optional(),
+  style: TextStyleSchema.optional(),
   orderIndex: z.number().int(),
   checked: z.boolean().optional(),
 });
@@ -16,6 +23,7 @@ const UpdateBlockSchema = z.object({
   type: BlockTypeEnum.optional(),
   content: z.string().optional(),
   language: z.string().optional(),
+  style: TextStyleSchema.optional(),
   orderIndex: z.number().int().optional(),
   checked: z.boolean().optional(),
 });
