@@ -27,11 +27,18 @@ import { httpLogger } from "./logger";
 const app = express();
 const PORT = process.env.PORT ?? 3001;
 
+const clientOrigin = process.env.CLIENT_ORIGIN ?? "http://localhost:5173";
+if (process.env.NODE_ENV === "production" && !process.env.CLIENT_ORIGIN) {
+    console.warn(
+        "[cors] CLIENT_ORIGIN is not set in production — falling back to localhost. Cross-origin requests from the deployed client will be blocked.",
+    );
+}
+
 app.use(helmet());
 app.use(httpLogger);
 app.use(
     cors({
-        origin: process.env.CLIENT_ORIGIN ?? "http://localhost:3001",
+        origin: clientOrigin,
         credentials: true,
     }),
 );
