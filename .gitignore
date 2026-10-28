@@ -4,3 +4,11 @@ dist/
 *.local
 server/.env
 .claude/settings.local.json
+
+# Test artefacts
+playwright-report/
+test-results/
+blob-report/
+.playwright/
+coverage/
+*.tsbuildinfo

@@ -1,0 +1,14 @@
+{
+  "name": "dmnotebook",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Root scripts only — unit tests live in server/test and client/test, end-to-end tests live in client/e2e.",
+  "scripts": {
+    "test:server": "npm --prefix server run test",
+    "test:client": "npm --prefix client run test",
+    "test:unit": "npm run test:server && npm run test:client",
+    "test:e2e": "npm --prefix client run test:e2e",
+    "test:e2e:ui": "npm --prefix client run test:e2e:ui",
+    "typecheck": "npm --prefix server run typecheck && npm --prefix client run typecheck"
+  }
+}

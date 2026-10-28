@@ -8,19 +8,22 @@ const statusColor = (status: number) => {
     return chalk.green.bold(status); // Successes
 };
 
-export const httpLogger = morgan((tokens, req, res) => {
-    const status = Number(tokens.status(req, res));
-    const method = tokens.method(req, res);
+export const httpLogger = morgan(
+    (tokens, req, res) => {
+        const status = Number(tokens.status(req, res));
+        const method = tokens.method(req, res);
 
-    const coloredMethod =
-        method === "GET" ? chalk.green(method) : chalk.yellow(method);
+        const coloredMethod =
+            method === "GET" ? chalk.green(method) : chalk.yellow(method);
 
-    return [
-        chalk.gray(`[${new Date().toISOString()}]`),
-        coloredMethod,
-        chalk.white(tokens.url(req, res)),
-        statusColor(status),
-        chalk.gray(`${tokens["response-time"](req, res)} ms`),
-        chalk.gray(`- ${tokens.res(req, res, "content-length") || 0} bytes`),
-    ].join(" ");
-});
+        return [
+            chalk.gray(`[${new Date().toISOString()}]`),
+            coloredMethod,
+            chalk.white(tokens.url(req, res)),
+            statusColor(status),
+            chalk.gray(`${tokens["response-time"](req, res)} ms`),
+            chalk.gray(`- ${tokens.res(req, res, "content-length") || 0} bytes`),
+        ].join(" ");
+    },
+    { skip: () => process.env.NODE_ENV === "test" },
+);

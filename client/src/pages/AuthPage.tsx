@@ -24,10 +24,13 @@ const Field = ({
   type?: string;
   value: string;
   onChange: (v: string) => void;
-}): JSX.Element => (
+}): JSX.Element => {
+  const id = `auth-field-${label.toLowerCase()}`;
+  return (
   <Box>
     <Text
       as="label"
+      htmlFor={id}
       display="block"
       mb="6px"
       fontFamily="'Space Mono', monospace"
@@ -40,6 +43,7 @@ const Field = ({
       {label}
     </Text>
     <Input
+      id={id}
       type={type}
       value={value}
       required
@@ -56,7 +60,8 @@ const Field = ({
       _focus={{ borderColor: "var(--horizon)" }}
     />
   </Box>
-);
+  );
+};
 
 const AuthPage = (): JSX.Element => {
   const status = useAuthStore((s) => s.status);
